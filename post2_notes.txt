@@ -1,0 +1,37 @@
+General Notes
+there are 2 firmware standards 
+    Basic Input/Output System (BIOS): very old and simple and basic, supported by almost all
+    Unified Extensible Firmware Interfaace (UFEI): modern, complex and has lots of features
+
+We will look at BIOS
+Almost all x86 systems, even newer UFEI systems support BIOS
+
+When a computer turns on, it automatically begins executing the code in its ROM (on motherboard), 
+    this will perform power on self test (checks to see if a computers  (BIOS) are working correctly)
+    checks avail RAM,
+    pre-inits the CPU and hardware
+If all of this workds, then it will boot the OS:
+    looks for bootable disks, if one is ofund the bootloader is started
+        bootloader: 512 byte code stored at the beginning of the disk, most are now larger than 512 bytes so require 2 stage loading
+        Determines the location of the kernel image and then loads it into memory
+        Switches the CPU from 16-bit real mode (pointing to direct meomry addresses) to 32-bit protected mode (allows use of virtual memory, paging, multi-tasking)
+        Finally from 32 bit protected to 64 bit long mode (where 64-bit registers and the complete main memory are available)
+        Query info such as a memory map from BIOS and pass to OS
+Bootloaders used to be specific for each OS -> Multiboot created in 1995
+    standard deifnes interface b/w bootloader and the OS, so that any compliant OS can use any compliant bootloader
+    Not the best: 
+        cpu has to configure the switch to 64-bit long mode, 
+        is designed to make the bootloader simpler instead of the kernel
+
+Implementation Notes:
+
+Building through cargo will by default build for the host system, to avoid, we can specify the target,but it a bit long winded
+    Switch to Nightly rust compiler
+    Create json file with the target info:
+        target trple -> cpu architecture, vendor, OS, and the ABI
+        In our case we want to run on the bare metal-> we speicify our OS as none for the LLVM target  
+            LLVM -> compiler infrastrucutre that is used by many languages, is a middle layer for the compiler, it is deisgned around a langauge independent intermediate repersentation that sbasically optimizes the high-level assembly by optimizing it through many passes
+        We change the linker to the rust LLD linker which is cross platform
+        we change the panic strategy to abort, se we dont have to do a stack unwind
+            We dont want a stack unwind because this is the bare OS, and requires some OS specific libraries as it is very complex
+            
