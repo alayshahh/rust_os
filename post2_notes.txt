@@ -34,4 +34,5 @@ Building through cargo will by default build for the host system, to avoid, we c
         We change the linker to the rust LLD linker which is cross platform
         we change the panic strategy to abort, se we dont have to do a stack unwind
             We dont want a stack unwind because this is the bare OS, and requires some OS specific libraries as it is very complex
-            
+        we disable redzone to allow us to handle interrupts because it would cause stack corruptions as it optimizes stack pointers
+        
